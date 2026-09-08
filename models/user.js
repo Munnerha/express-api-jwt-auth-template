@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema({
 userSchema.set('toJSON', {
   transform: (document, userObj) => {
     delete userObj.password;
-    userObj.hello = 'world';
+    // we can add any field we want here that is not on the model
+    // computed fields
   },
 });
 

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -11,6 +12,7 @@ const logger = require('morgan');
 // Controllers
 const testJWTCtrl = require('./controllers/test-jwt');
 const authCtrl = require('./controllers/authCtrl');
+const isSignedIn = require('./middleware/isSignedIn');
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -24,7 +26,22 @@ app.use(logger('dev'));
 
 // ROUTES
 
+// PUBLIC
 app.post('/auth/sign-up', authCtrl.signup);
+app.post('/auth/sign-in', authCtrl.login);
+
+// PROTECTED
+app.use(isSignedIn);
+
+app.get('/protected', (req, res) => {
+  try {
+    const userPayload = req.user;
+
+    res.status(200).json({ user: userPayload });
+  } catch (error) {
+    res.status(500).json({ err: 'Something went wrong' });
+  }
+});
 
 // DELETE TEST ROUTES
 app.get('/sign-token', testJWTCtrl.signToken);
