@@ -1,24 +1,18 @@
 /* eslint-disable prefer-destructuring */
-const dotenv = require('dotenv');
+require('dotenv').config();
+require('./config/database');
 
-dotenv.config();
 const express = require('express');
 
 const app = express();
-const mongoose = require('mongoose');
+
+// Middleware
 const cors = require('cors');
 const logger = require('morgan');
-
-// Controllers
-const testJWTCtrl = require('./controllers/test-jwt');
-const authCtrl = require('./controllers/authCtrl');
 const isSignedIn = require('./middleware/isSignedIn');
 
-mongoose.connect(process.env.MONGODB_URI);
-
-mongoose.connection.on('connected', () => {
-  console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
-});
+// Routers
+const authRouter = require('./routes/authRouter');
 
 app.use(cors());
 app.use(express.json());
@@ -27,8 +21,7 @@ app.use(logger('dev'));
 // ROUTES
 
 // PUBLIC
-app.post('/auth/sign-up', authCtrl.signup);
-app.post('/auth/sign-in', authCtrl.login);
+app.use('/auth', authRouter);
 
 // PROTECTED
 app.use(isSignedIn);
@@ -42,10 +35,6 @@ app.get('/protected', (req, res) => {
     res.status(500).json({ err: 'Something went wrong' });
   }
 });
-
-// DELETE TEST ROUTES
-app.get('/sign-token', testJWTCtrl.signToken);
-app.post('/verify-token', testJWTCtrl.verifyToken);
 
 app.listen(3000, () => {
   console.log('The express app is ready!');
