@@ -10,6 +10,7 @@ const logger = require('morgan');
 
 // Controllers
 const testJWTCtrl = require('./controllers/test-jwt');
+const authCtrl = require('./controllers/authCtrl');
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -21,9 +22,13 @@ app.use(cors());
 app.use(express.json());
 app.use(logger('dev'));
 
-// Routes go here
+// ROUTES
 
+app.post('/auth/sign-up', authCtrl.signup);
+
+// DELETE TEST ROUTES
 app.get('/sign-token', testJWTCtrl.signToken);
+app.post('/verify-token', testJWTCtrl.verifyToken);
 
 app.listen(3000, () => {
   console.log('The express app is ready!');
